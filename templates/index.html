@@ -1,0 +1,79 @@
+<!-- Full Website: Matrix Calculator with Persistent Inputs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Operations</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px #aaa;
+            border-radius: 10px;
+        }
+        input, select, button {
+            margin: 5px;
+            padding: 8px;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f7f7f7;
+            border-left: 4px solid #444;
+        }
+    </style>
+    <script>
+      function generateMatrixInputs() {
+          const n = parseInt(document.getElementById('matrix_size').value);
+          const container = document.getElementById('matrix_input_area');
+          const existing = JSON.parse(document.getElementById('matrix_data_json').value || '[]');
+          container.innerHTML = "";
+
+          for (let i = 0; i < n; i++) {
+              for (let j = 0; j < n; j++) {
+                  const value = (existing[i] && existing[i][j]) ? existing[i][j] : "";
+                  container.innerHTML += `<input type="number" name="a${i}_${j}" value="${value}" required style="width: 50px;">`;
+              }
+              container.innerHTML += "<br>";
+          }
+      }
+    </script>
+</head>
+<body onload="generateMatrixInputs()">
+    <div class="container">
+        <h2>Matrix Operation Calculator</h2>
+        <form method="POST">
+            <label for="matrix_size">Enter Matrix Size (n x n):</label>
+            <input type="number" id="matrix_size" name="matrix_size" min="2" max="6" value="{{ size }}" required onchange="generateMatrixInputs()">
+
+            <input type="hidden" id="matrix_data_json" value='{{ matrix_data | tojson | safe }}'>
+
+            <div id="matrix_input_area"></div>
+
+            <label for="operation">Select Operation:</label>
+            <select name="operation" required>
+                <option value="char_poly" {% if selected_operation == 'char_poly' %}selected{% endif %}>Characteristic Polynomial</option>
+                <option value="eigenvalues" {% if selected_operation == 'eigenvalues' %}selected{% endif %}>Eigenvalues</option>
+                <option value="rank" {% if selected_operation == 'rank' %}selected{% endif %}>Rank</option>
+                <option value="canonical" {% if selected_operation == 'canonical' %}selected{% endif %}>Canonical Form</option>
+                <option value="quadratic" {% if selected_operation == 'quadratic' %}selected{% endif %}>Quadratic Form</option>
+            </select>
+
+            <button type="submit">Calculate</button>
+        </form>
+
+        {% if result %}
+        <div class="output">
+            <h3>Result:</h3>
+            <pre>{{ result }}</pre>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
